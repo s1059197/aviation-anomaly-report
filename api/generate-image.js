@@ -73,8 +73,8 @@ export default async function handler(req, res) {
         model: imageModel,
         prompt,
         n: 1,
-        size: "1024x1024",
-        quality: "low",
+        size: "1536x1024",
+        quality: "medium",
         output_format: "png"
       })
     });
