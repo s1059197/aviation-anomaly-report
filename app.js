@@ -21,6 +21,10 @@ const nextStepButton = document.querySelector("#nextStep");
 const wizardActions = document.querySelector(".wizard-actions");
 const submitReportButton = document.querySelector("#submitReport");
 const submitConfirmation = document.querySelector("#submitConfirmation");
+const submissionOverlay = document.querySelector("#submissionOverlay");
+const submissionLoading = document.querySelector("#submissionLoading");
+const submissionDone = document.querySelector("#submissionDone");
+const submissionDoneButton = document.querySelector("#submissionDoneButton");
 
 const fields = {
   sightingTime: document.querySelector("#sightingTime"),
@@ -206,7 +210,7 @@ const drawDemoLabel = () => {
   reconstructionCtx.fill();
   reconstructionCtx.fillStyle = "#ffffff";
   reconstructionCtx.font = "700 14px Arial";
-  reconstructionCtx.fillText("demo - no changes made", 34, 40);
+  reconstructionCtx.fillText("no changes made", 34, 40);
   reconstructionCtx.restore();
 };
 
@@ -285,7 +289,7 @@ const drawReconstruction = (prompt, feedback = "") => {
   reconstructionCtx.fillRect(0, height - 58, width, 58);
   reconstructionCtx.fillStyle = "#eff8f7";
   reconstructionCtx.font = "700 18px Arial";
-  reconstructionCtx.fillText(`POC visual reconstruction ${imageIteration}`, 18, height - 32);
+  reconstructionCtx.fillText(`Visual reconstruction ${imageIteration}`, 18, height - 32);
   reconstructionCtx.font = "14px Arial";
   reconstructionCtx.fillText(feedback || "Generated from narrative. Add feedback and iterate for a tighter match.", 18, height - 12);
 
@@ -403,8 +407,8 @@ const generateVisualization = async (feedback = "") => {
   if (!usedLiveImage) {
     drawReconstruction(activePrompt || "Unspecified aerial anomaly", feedback);
     fields.imageBackendStatus.textContent = feedback
-      ? "Demo revision loaded. Revisions remain enabled."
-      : "Demo visualization loaded. Revisions are now enabled.";
+      ? "Revision loaded. Revisions remain enabled."
+      : "Visualization loaded. Revisions are now enabled.";
   }
   setImageLoading(false);
 };
@@ -457,7 +461,7 @@ const buildReportText = () => {
     "",
     "4. Visual reconstruction notes",
     imageIteration
-      ? `POC reconstruction iterations completed: ${imageIteration}. Feedback log: ${[...imageLog.querySelectorAll("li")].map((li) => li.textContent).reverse().join(" | ")}`
+      ? `Reconstruction iterations completed: ${imageIteration}. Feedback log: ${[...imageLog.querySelectorAll("li")].map((li) => li.textContent).reverse().join(" | ")}`
       : "No visual reconstruction generated yet.",
     "",
     "5. Reporter review",
@@ -494,7 +498,7 @@ const buildSubmissionPayload = () => {
         data: radarCanvas.toDataURL("image/png")
       },
       {
-        title: "Demo Visualization",
+        title: "Visual Reconstruction",
         data: reconstructionCanvas.toDataURL("image/png")
       }
     ],
@@ -545,28 +549,46 @@ const updateAll = () => {
     : "Flight context pending";
 };
 
+const showSubmissionLoading = () => {
+  submissionLoading.hidden = false;
+  submissionDone.hidden = true;
+  submissionOverlay.hidden = false;
+};
+
+const showSubmissionDone = () => {
+  submissionLoading.hidden = true;
+  submissionDone.hidden = false;
+  submissionDoneButton.focus();
+};
+
+const hideSubmissionOverlay = () => {
+  submissionOverlay.hidden = true;
+};
+
 const submitReport = async () => {
   const payload = buildSubmissionPayload();
   const reportSubmitUrl = normalizeReportSubmitUrl();
   const apiBase = normalizeApiBase();
   submitReportButton.disabled = true;
-  submitConfirmation.textContent = "Saving report...";
+  submitConfirmation.textContent = "";
+  showSubmissionLoading();
 
   try {
     if (reportSubmitUrl) {
       await submitToAppsScript(reportSubmitUrl, payload);
-      submitConfirmation.textContent = "Report saved to the demo backend. A PDF copy will be stored in Drive.";
+      showSubmissionDone();
       return;
     }
 
     if (apiBase) {
       await savePdfThroughApi(apiBase, payload);
-      submitConfirmation.textContent = "Report submitted for this prototype. A PDF copy was saved.";
+      showSubmissionDone();
       return;
     }
 
-    throw new Error("No report backend is configured. Add an Apps Script URL in config.js.");
+    throw new Error("No report backend is configured.");
   } catch (error) {
+    hideSubmissionOverlay();
     submitConfirmation.textContent = `${error.message} Report was not transmitted.`;
   } finally {
     submitReportButton.disabled = false;
@@ -574,6 +596,9 @@ const submitReport = async () => {
 };
 
 submitReportButton.addEventListener("click", submitReport);
+submissionDoneButton.addEventListener("click", () => {
+  window.location.href = window.location.pathname;
+});
 
 form.addEventListener("input", updateAll);
 document.querySelectorAll("input[name='shape']").forEach((input) => input.addEventListener("change", updateAll));
@@ -584,7 +609,7 @@ fields.apiBaseUrl.addEventListener("input", () => {
     fields.imageBackendStatus.textContent = "Live image backend configured.";
   } else {
     localStorage.removeItem("uapImageApiBase");
-    fields.imageBackendStatus.textContent = "Using local POC renderer until an API URL is set.";
+    fields.imageBackendStatus.textContent = "Using local renderer until an API URL is set.";
   }
 });
 
