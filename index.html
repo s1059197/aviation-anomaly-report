@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Aviation Anomaly Report</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <h1>Aviation Anomaly Report</h1>
+      </div>
+    </header>
+
+    <main class="shell">
+      <section class="workspace" aria-label="Report form">
+        <div class="wizard-progress" aria-label="Report progress">
+          <ol class="progress-steps">
+            <li class="is-active" data-progress-step="flight"><span>1</span>Flight</li>
+            <li data-progress-step="sighting"><span>2</span>Sighting</li>
+            <li data-progress-step="narrative"><span>3</span>Visualization</li>
+            <li data-progress-step="review"><span>4</span>Review</li>
+          </ol>
+        </div>
+
+        <form id="reportForm">
+          <fieldset class="panel form-step is-active" data-panel="flight">
+            <legend>Flight and position</legend>
+
+            <div class="grid two">
+              <label>
+                Sighting date and time (UTC)
+                <input id="sightingTime" name="sightingTime" type="datetime-local" required />
+              </label>
+              <label>
+                Aircraft or flight identifier
+                <input id="flightId" name="flightId" type="text" placeholder="Optional" />
+              </label>
+            </div>
+
+            <div class="grid two">
+              <label>
+                Latitude
+                <input id="latitude" name="latitude" type="number" step="0.000001" min="-90" max="90" placeholder="39.871944" required />
+              </label>
+              <label>
+                Longitude
+                <input id="longitude" name="longitude" type="number" step="0.000001" min="-180" max="180" placeholder="-75.241111" required />
+              </label>
+            </div>
+
+            <div class="grid three instrument-fields">
+              <label class="stacked-control">
+                Altitude MSL (ft)
+                <input id="altitude" name="altitude" type="number" min="0" max="60000" step="100" placeholder="35000" required />
+                <input id="altitudeRange" type="range" min="0" max="60000" step="100" value="35000" aria-label="Altitude slider" />
+              </label>
+              <label class="stacked-control">
+                Airspeed (kt)
+                <input id="airspeed" name="airspeed" type="number" min="0" max="650" step="1" placeholder="280" required />
+                <input id="airspeedRange" type="range" min="0" max="650" step="1" value="280" aria-label="Airspeed slider" />
+              </label>
+              <label class="stacked-control">
+                Heading (deg)
+                <input id="heading" name="heading" type="number" min="0" max="359" step="1" placeholder="090" required />
+                <div class="heading-control">
+                  <input id="headingRange" type="range" min="0" max="359" step="1" value="90" aria-label="Heading slider" />
+                  <output id="headingOutput">090 deg</output>
+                </div>
+              </label>
+            </div>
+
+            <div class="grid two">
+              <label>
+                Aircraft type
+                <input id="aircraftType" name="aircraftType" type="text" placeholder="B737, C172, A320, etc." />
+              </label>
+              <label>
+                Phase of flight
+                <select id="phase" name="phase">
+                  <option>En route</option>
+                  <option>Climb</option>
+                  <option>Descent</option>
+                  <option>Approach</option>
+                  <option>Departure</option>
+                  <option>Ground/taxi</option>
+                </select>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset class="panel form-step" data-panel="sighting">
+            <legend>Sighting characteristics</legend>
+
+            <div class="grid three">
+              <label>
+                Relative bearing
+                <select id="bearing" name="bearing">
+                  <option>Ahead</option>
+                  <option>Left front quarter</option>
+                  <option>Right front quarter</option>
+                  <option>Left beam</option>
+                  <option>Right beam</option>
+                  <option>Aft</option>
+                  <option>Unknown</option>
+                </select>
+              </label>
+              <label>
+                Estimated range
+                <input id="range" name="range" type="text" placeholder="e.g. 3 NM, 500 ft, unknown" />
+              </label>
+              <label>
+                Duration
+                <input id="duration" name="duration" type="text" placeholder="e.g. 40 seconds" required />
+              </label>
+            </div>
+
+            <div class="selector-group" aria-label="Object type">
+              <input id="shapeOrb" name="shape" type="radio" value="Spherical or orb" checked />
+              <label for="shapeOrb">Orb</label>
+              <input id="shapeDisc" name="shape" type="radio" value="Disc or lenticular" />
+              <label for="shapeDisc">Disc</label>
+              <input id="shapeCylinder" name="shape" type="radio" value="Cylinder or tic-tac" />
+              <label for="shapeCylinder">Cylinder</label>
+              <input id="shapeTriangle" name="shape" type="radio" value="Triangular" />
+              <label for="shapeTriangle">Triangle</label>
+              <input id="shapeOther" name="shape" type="radio" value="Other or unclear" />
+              <label for="shapeOther">Other</label>
+            </div>
+
+            <div class="grid two">
+              <label>
+                Color and luminosity
+                <input id="luminosity" name="luminosity" type="text" placeholder="white light, metallic gray, pulsing amber" />
+              </label>
+              <label>
+                Motion observed
+                <select id="motion" name="motion">
+                  <option>Stationary relative to aircraft</option>
+                  <option>Straight and level</option>
+                  <option>Rapid acceleration</option>
+                  <option>Erratic or non-ballistic</option>
+                  <option>Vertical climb/descent</option>
+                  <option>Appeared/disappeared suddenly</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="grid two">
+              <label>
+                Environmental conditions
+                <textarea id="conditions" name="conditions" rows="4" placeholder="Weather, visibility, cloud deck, moon illumination, turbulence, glare, contrails"></textarea>
+              </label>
+              <label>
+                Sensor or traffic context
+                <textarea id="sensorContext" name="sensorContext" rows="4" placeholder="ATC comments, TCAS, onboard radar, ADS-B, camera, crew or passenger witnesses"></textarea>
+              </label>
+            </div>
+
+            <label class="impact-toggle">
+              <input id="safetyImpact" name="safetyImpact" type="checkbox" />
+              Safety or operational impact occurred
+            </label>
+
+            <label>
+              Operational impact notes
+              <textarea id="impactNotes" name="impactNotes" rows="4" placeholder="Course change, missed checklist item, traffic advisory, crew workload, emergency declaration"></textarea>
+            </label>
+
+            <label>
+              Narrative description
+              <textarea id="narrative" name="narrative" rows="7" placeholder="Describe what you saw in plain language: where it appeared, how it moved, changes in brightness, apparent size, and anything that made it unusual." required></textarea>
+            </label>
+          </fieldset>
+
+          <fieldset class="panel form-step" data-panel="narrative">
+            <legend>Visual reconstruction</legend>
+
+            <div class="visual-tools">
+              <button type="button" id="iterateImage">Iterate with feedback</button>
+              <label>
+                Feedback for next image
+                <input id="imageFeedback" type="text" placeholder="e.g. make it dimmer, add cloud layer, show object higher right" />
+              </label>
+              <input id="apiBaseUrl" type="hidden" />
+            </div>
+            <p class="hint" id="imageBackendStatus">Visualization will load automatically.</p>
+
+            <div class="reconstruction" aria-live="polite">
+              <div class="reconstruction-frame" id="reconstructionFrame">
+                <canvas id="reconstructionCanvas" width="680" height="400"></canvas>
+                <div class="loading-veil" id="imageLoading">
+                  <span></span>
+                  <strong>Generating visualization</strong>
+                </div>
+              </div>
+              <div>
+                <h2>Visual feedback log</h2>
+                <ol id="imageLog"></ol>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="panel form-step" data-panel="review">
+            <legend>Review and draft</legend>
+
+            <label>
+              Final report
+              <textarea id="finalReport" rows="18" readonly></textarea>
+            </label>
+
+            <div class="review-exhibits">
+              <figure>
+                <img id="reviewRadarImage" alt="Heading and airspeed visualization preview" />
+                <figcaption>Heading and airspeed visualization</figcaption>
+              </figure>
+              <figure>
+                <img id="reviewDemoImage" alt="Visual reconstruction preview" />
+                <figcaption>Demo visualization</figcaption>
+              </figure>
+            </div>
+
+            <p class="confirmation" id="submitConfirmation" role="status"></p>
+          </fieldset>
+
+          <div class="wizard-actions">
+            <button type="button" id="backStep">Back</button>
+            <button type="button" class="primary" id="nextStep">Next</button>
+            <button type="button" class="primary" id="submitReport">Submit report</button>
+          </div>
+        </form>
+      </section>
+
+      <aside class="live-panel" aria-label="Live report summary">
+        <div class="radar-card">
+          <canvas id="radarCanvas" width="420" height="420"></canvas>
+          <div class="radar-readout">
+            <span id="readoutCoords">Lat/long pending</span>
+            <span id="readoutFlight">Flight context pending</span>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

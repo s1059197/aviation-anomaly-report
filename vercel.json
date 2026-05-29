@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "api/generate-image.js": {
+      "maxDuration": 30
+    },
+    "api/save-report-pdf.js": {
+      "maxDuration": 30
+    }
+  }
+}

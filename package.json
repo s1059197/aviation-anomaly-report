@@ -1,0 +1,13 @@
+{
+  "name": "uap-spotting-tool",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check app.js && node --check api/generate-image.js && node --check api/save-report-pdf.js",
+    "serve": "powershell -ExecutionPolicy Bypass -File ./serve.ps1 4173"
+  },
+  "dependencies": {
+    "pdf-lib": "^1.17.1"
+  }
+}
